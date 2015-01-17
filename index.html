@@ -1,0 +1,202 @@
+<html>
+<head>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+	<!-- <script type="text/javascript" src="js/colorpicker.js"></script>
+    <script type="text/javascript" src="js/eye.js"></script>
+    <script type="text/javascript" src="js/utils.js"></script>
+    <script type="text/javascript" src="js/layout.js?ver=1.0.2"></script>-->
+	<script type="text/javascript" src="js/script.js"></script>
+
+	<link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+	<link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+	<!-- <link rel="stylesheet" href="css/colorpicker.css" type="text/css" /> -->
+	<link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+	<div class="row">
+		<div class="col-md-2 blue_container">
+			<h4>Klukka</h4>
+			<div class="btn-group">
+				<button class="btn btn-small"><i class="fa fa-minus"></i></button>
+				<button class="btn btn-small"><i class="fa fa-play"></i></button>
+				<button class="btn btn-small"><i class="fa fa-plus"></i></button>
+			</div>
+			<button class="btn btn-small"><i class="fa fa-refresh"></i></button>
+		</div>
+		<div class="col-md-4 green_container" id="players">
+			<div class="form-group">
+				<div class="input-group">
+					<input class="form-control" id="inp_game_no" type="text" placeholder="KSÍ Leiknúmer">
+					<span class="input-group-addon" onClick="loadPlayersData($('#inp_game_no').val())">Sækja</span>
+					
+				</div>
+			</div>
+			Home:<select id="home_players"></select><br>
+			Guest:<select id="guest_players"></select>
+		</div>
+	</div>
+	
+</div>
+<hr>
+<div id="controls">
+	<div style="width:400px;float:left;">
+		<div style="width:200px;">
+			<h4>Klukka</h4>
+			<input type="button" value="-" onclick="adjustDown();">
+			<input type="button" id="startstop" value="start" onclick="toggle_startstop();">
+			<input type="button" value="+" onclick="adjustUp();">
+			<input type="button" value="reset" onclick="resetTime();">
+		</div>
+		<div style="width:400px;">
+			<h4>Liðsupplýsingar</h4>
+			<div style="float:left;">
+				Home: <input type="text" id="home_text" value="" onChange="changeText('home');">
+				<input type="button" value="-1" onclick="lowerScore('home');">
+				<input type="button" value="+1" onclick="addScore('home');">
+			</div>
+			<div id="colorHome" style="float:left;" class="colorPick"><div style="background-color: #1e4f8a"></div></div>
+			<div style="clear:both"></div>
+			<div style="float:left">	
+				Guests:<input type="text" id="guest_text" value="" onChange="changeText('guest');">
+				<input type="button" value="-1" onclick="lowerScore('guest');">
+				<input type="button" value="+1" onclick="addScore('guest');">
+			</div>
+			<div id="colorGuest" style="float:left;" class="colorPick"><div style="background-color: #1e4f8a"></div></div>
+		</div>
+		<div style="clear:both;"></div>
+		<div>
+			<h4>Message log</h4>
+			<select id="message_log" multiple size=7></select>
+		</div>
+	</div>
+	
+	<div style="float:left;width:300px;">
+		<h4>Leikupplýsingar</h4>
+		Leiknúmer <input type="text" id="game_no"> <input type="button" value="Sækja" onClick="loadPlayersData($('#game_no').val())"><br>
+		<span id="game_title"></span><br>
+		<span id="game_date"></span><br>
+		Home:<select id="home_players"></select><br>
+		Guest:<select id="guest_players"></select>
+		<h4>Skilaboð</h4>
+		<input type="text" id="message_input">
+		<select id="icon_select">
+			<option value="yellowcard">Gult spjald</option>
+			<option value="redcard">Rautt spjald</option>
+			<option value="skipting_inn">Skipting Inn</option>
+			<option value="skipting_ut">Skipting Út</option>
+			<option value="goal">Mark</option>
+			<option>Annað</option>
+		</select>
+		<input type="button" value="birta" onClick="showMessage()">
+	</div>
+	<div style="float:left;width:300px;">
+		<h4>Stillingar</h4>
+		Chroma color: <div id="colorChroma" style="float:left;" class="colorPick"><div style="background-color: green"></div></div>
+	</div>
+	
+</div>
+
+<div>
+<input type="text" id="min" value="0" size="4">
+<input type="text" id="sec" value="0" size="4">
+<input type="text" id="min_over" value="0" size="4">
+<input type="text" id="sec_over" value="0" size="4">
+</div>
+<div id="screenarea">
+	<div id="scoreboard">
+		<div id="home" class="team">
+			<div id="home_name">Home</div>
+			<div id="home_score" class="teamscore">0</div>
+		</div>
+		<div id="guest" class="team">
+			<div id="guest_name">Guest</div>
+			<div id="guest_score" class="teamscore">0</div>
+		</div>
+		<div id="clock_area" class="roundbox">
+			<div id="clock">00:00</div>
+
+		</div>			
+		<div id="status">00:00</div>
+		<div id="message">
+			<div id="message_text" class="redcard">#20 Pétur Andersen</div>
+		</div>
+	</div>
+</div>
+<div id="test"></div>
+<script>
+
+	var minOver = document.getElementById('min_over');
+	var secOver = document.getElementById('sec_over');	
+	var min = document.getElementById('min');
+	var sec = document.getElementById('sec');
+
+	sec.value = "0";
+	min.value = "0";
+	secOver.value = "0";
+	minOver.value = "0";
+	var SD;
+	var SDover;
+	var MSG;
+	var messageShown = false;
+	
+	$('#home_players').change(function() {
+		$('#message_input').val($('#home_text').val() + ' - ' + $('#home_players option:selected').text());
+	});
+	$('#guest_players').change(function() {
+		$('#message_input').val($('#guest_text').val() + ' - ' + $('#guest_players option:selected').text());
+	});
+
+	/* Color Select *//*
+	$('#colorHome').ColorPicker({
+		color: '#1e4f8a',
+		onShow: function (colpkr) {
+			$(colpkr).fadeIn(500);
+			return false;
+		},
+		onHide: function (colpkr) {
+			$(colpkr).fadeOut(500);
+			return false;
+		},
+		onChange: function (hsb, hex, rgb) {
+			$('#colorHome div').css('background-color', '#' + hex);
+			var darker = ColorLuminance(hex,-0.3);
+			$('#home').css('background','-webkit-linear-gradient(bottom, '+darker+' 45%, #'+hex+' 75%)');
+		}
+	});
+	$('#colorGuest').ColorPicker({
+		color: '#1e4f8a',
+		onShow: function (colpkr) {
+			$(colpkr).fadeIn(300);
+			return false;
+		},
+		onHide: function (colpkr) {
+			$(colpkr).fadeOut(300);
+			return false;
+		},
+		onChange: function (hsb, hex, rgb) {
+			$('#colorGuest div').css('background-color', '#' + hex);
+			var darker = ColorLuminance(hex,-0.3);
+			$('#guest').css('background','-webkit-linear-gradient(bottom, '+darker+' 45%, #'+hex+' 75%)');
+		}
+	});
+	$('#colorChroma').ColorPicker({
+		color: 'green',
+		onShow: function (colpkr) {
+			$(colpkr).fadeIn(300);
+			return false;
+		},
+		onHide: function (colpkr) {
+			$(colpkr).fadeOut(300);
+			return false;
+		},
+		onChange: function (hsb, hex, rgb) {
+			$('#colorChroma div').css('background-color', '#' + hex);
+			$('#screenarea').css('background-color','#'+hex);
+		}
+	});*/
+</script>
+
+</body>
+</html>

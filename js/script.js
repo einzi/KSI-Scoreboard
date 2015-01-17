@@ -169,7 +169,7 @@ function loadPlayersData(id)
 		return false;
 	}
 
-	$.getJSON('./ksiAjax.php?section=game_report&id='+id, function(data) {
+	$.ajax('http://kfitv.is/Scoreboard/ksiAjax.php?section=game_report&id='+id, function(data) {
 		$('#game_title').html(data.title);
 		$('#game_date').html(data.date);
 
